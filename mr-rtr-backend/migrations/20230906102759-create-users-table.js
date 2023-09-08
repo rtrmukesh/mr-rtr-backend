@@ -27,6 +27,10 @@ exports.up = async function up(queryInterface, Sequelize) {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        session_id: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
         createdAt: {
           allowNull: false,
           type: Sequelize.DATE,

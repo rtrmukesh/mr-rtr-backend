@@ -3,6 +3,8 @@ const multer = require("multer");
 const cors = require("cors");
 const User = require("./db/model/User");
 const { md5Password } = require("./lib/utils");
+const md5 = require("md5");
+
 
 const app = express();
 const port = 3002;
@@ -28,8 +30,49 @@ app.post("/v1/user/signup", upload.any(), async (req, res) => {
       res.json(200, { message: "User Created Successfully" });
     })
     .catch((err) => {
-      console.err(err);
+      console.log(err);
       res.json(400, { message: `User Creation err-->${err}` });
+    });
+});
+
+app.post('/v1/user/loginByPassword', upload.any(), async (req, res) => {
+  let data = req.body;
+
+  if (!data?.email) {
+    return res.json(400, { message: 'Email is required' });
+  }
+
+  if (!data?.password) {
+    return res.json(400, { message: 'Password is required' });
+  }
+
+  User.findOne({ where: { email: data?.email } })
+    .then((userResponse) => {
+      if (!userResponse) {
+        return res.json(400, { message: 'Invalid Username or Password' });
+      }
+
+      if (userResponse.password !== md5(data?.password)) {
+        return res.json(400, { message: 'Invalid credentials' });
+      }
+
+      const session_id = userResponse.session_id || Math.floor(Date.now());
+
+      userResponse
+        .update({
+          session_id: session_id,
+        })
+        .then(() => {
+          res.json({
+            message: 'User LoggedIn SuccessFully',
+            user: {
+              token: session_id,
+            },
+          });
+        });
+    })
+    .catch((err) => {
+      console.log(err);
     });
 });
 

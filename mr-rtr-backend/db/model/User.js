@@ -22,6 +22,10 @@ const User = sequelize.define('user', {
     allowNull: true,
     unique: true,
   },
+  session_id: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
   createdAt: {
     allowNull: false,
     type: Sequelize.DATE,
