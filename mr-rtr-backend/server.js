@@ -19,6 +19,16 @@ const upload = multer({ storage: storage });
 app.post("/v1/user/signup", upload.any(), async (req, res) => {
   let data = req.body;
 
+  let isUserExits =await User.findOne({
+    where: {
+      email: data?.email,
+    },
+  });
+
+  if (isUserExits) {
+   return res.json(400, { message: 'User Already Exits' });
+  }
+
   let createData = {
     name: data?.name,
     email: data?.email,
