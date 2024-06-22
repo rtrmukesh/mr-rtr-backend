@@ -1,90 +1,27 @@
 const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
-const User = require("./db/model/User");
-const { md5Password } = require("./lib/utils");
-const md5 = require("md5");
+const bodyParser = require("body-parser");
+const userRoute = require("./routes/user");
 
 
 const app = express();
 const port = 3002;
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 app.use(cors());
 
 app.use(express.json());
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+app.use(bodyParser.urlencoded({ limit: "50mb" }));
 
-app.post("/v1/user/signup", upload.any(), async (req, res) => {
-  let data = req.body;
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(upload.none());
 
-  let isUserExits =await User.findOne({
-    where: {
-      email: data?.email,
-    },
-  });
+app.use("/v1/user",userRoute)
 
-  if (isUserExits) {
-   return res.json(400, { message: 'User Already Exits' });
-  }
-
-  let createData = {
-    name: data?.name,
-    email: data?.email,
-    password: md5Password(data?.newPassword),
-  };
-
-  await User.create(createData)
-    .then((response) => {
-      res.json(200, { message: "User Created Successfully" });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json(400, { message: `User Creation err-->${err}` });
-    });
-});
-
-app.post('/v1/user/loginByPassword', upload.any(), async (req, res) => {
-  let data = req.body;
-
-  if (!data?.email) {
-    return res.json(400, { message: 'Email is required' });
-  }
-
-  if (!data?.password) {
-    return res.json(400, { message: 'Password is required' });
-  }
-
-  User.findOne({ where: { email: data?.email } })
-    .then((userResponse) => {
-      if (!userResponse) {
-        return res.json(400, { message: 'Invalid Username or Password' });
-      }
-
-      if (userResponse.password !== md5(data?.password)) {
-        return res.json(400, { message: 'Invalid credentials' });
-      }
-
-      const session_id = userResponse.session_id || Math.floor(Date.now());
-
-      userResponse
-        .update({
-          session_id: session_id,
-        })
-        .then(() => {
-          res.json({
-            message: 'User LoggedIn SuccessFully',
-            user: {
-              token: session_id,
-            },
-          });
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
