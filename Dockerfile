@@ -1,6 +1,6 @@
-FROM node:18
+FROM node:16
 WORKDIR /app
-COPY pakage*.json ./
+COPY package*.json ./
 RUN npm install
 COPY . .
 EXPOSE 8080
