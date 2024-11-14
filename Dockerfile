@@ -1,14 +1,14 @@
 # Use Node.js 16 as the base image
 FROM node:16
 
-# Install Python 3.9 and dependencies needed for yt-dlp
-RUN apt-get update && apt-get install -y \
-    python3.9 \
-    python3-pip \
-    && apt-get clean
 
-# Install yt-dlp using pip
-RUN npm install yt-dlp
+
+# Verify Python version (ensure it's >= 3.9)
+RUN python3.9 --version
+RUN python --version
+
+# Install yt-dlp via npm (if you need this)
+RUN npm install yt-dlp@latest
 
 # Set the working directory for the application
 WORKDIR /app
