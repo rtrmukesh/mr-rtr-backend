@@ -1,8 +1,12 @@
-# Use Ubuntu as the base image for easier Python installation
+# Use Ubuntu 20.04 as the base image for easier Python installation
 FROM ubuntu:20.04
 
-# Install Python 3.8, pip, and ffmpeg
+# Set non-interactive mode to prevent interactive prompts during package installations
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Python 3.8, pip, ffmpeg, and tzdata without interactive prompts
 RUN apt-get update && apt-get install -y \
+    tzdata \
     python3.8 \
     python3-pip \
     ffmpeg \
@@ -14,11 +18,6 @@ RUN ln -sf /usr/bin/python3.8 /usr/bin/python3 && \
 
 # Install yt-dlp using pip for Python 3.8+
 RUN python3 -m pip install yt-dlp
-
-# Install Node.js and npm (modify as needed if Node.js is not already in the image)
-RUN apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
-    apt-get install -y nodejs
 
 # Set the working directory for the application
 WORKDIR /app
