@@ -4,7 +4,6 @@ FROM node:16
 
 
 # Verify Python version (ensure it's >= 3.9)
-RUN python3.9 --version
 RUN python --version
 
 # Install yt-dlp via npm (if you need this)
