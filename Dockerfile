@@ -1,8 +1,12 @@
 # Use Node.js 16 as the base image
 FROM node:16
 
-# Install necessary dependencies
+# Install dependencies for adding new repositories, Python 3.8, pip, and ffmpeg
 RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y \
     python3.8 \
     python3.8-pip \
     ffmpeg \
