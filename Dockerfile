@@ -1,32 +1,25 @@
-# Use Node.js 16 as the base image
-FROM node:16
+# Use Ubuntu as the base image for easier Python installation
+FROM ubuntu:20.04
 
-# Install dependencies for adding new repositories, Python 3.8, pip, and ffmpeg
+# Install Python 3.8, pip, and ffmpeg
 RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    && add-apt-repository ppa:deadsnakes/ppa \
-    && apt-get update \
-    && apt-get install -y \
     python3.8 \
-    python3.8-pip \
+    python3-pip \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Ensure that python3 points to python3.8 and pip uses python3.8
+# Ensure that python3 points to python3.8
 RUN ln -s /usr/bin/python3.8 /usr/bin/python3 && \
     python3 -m pip install --upgrade pip
 
 # Install yt-dlp using pip for Python 3.8+
 RUN python3 -m pip install yt-dlp
 
-# Set the working directory for the application
+# Continue with Node.js setup (assuming Node.js is already in the image)
+# Set the working directory and install dependencies
 WORKDIR /app
-
-# Copy the package.json and package-lock.json files and install dependencies
 COPY package*.json ./
 RUN npm install
-
-# Copy the rest of the application files
 COPY . .
 
 # Expose the application port
