@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
 const userRoute = require("./routes/user");
-const db = require("./db/index");
+// const db = require("./db/index");
 const mediaRoute = require("./routes/media");
 
 
