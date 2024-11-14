@@ -17,21 +17,19 @@ RUN apt-get update && \
     libffi-dev \
     curl \
     libbz2-dev \
+    python3.9 \
+    python3.9-venv \
+    python3.9-dev \
     python3-pip && \
     apt-get clean
 
-# Download and install Python 3.9 from source
-RUN curl -O https://www.python.org/ftp/python/3.9.7/Python-3.9.7.tgz && \
-    tar -xvzf Python-3.9.7.tgz && \
-    cd Python-3.9.7 && \
-    ./configure --enable-optimizations && \
-    make -j 2 && \
-    make altinstall && \
-    cd .. && \
-    rm -rf Python-3.9.7 Python-3.9.7.tgz
+# Ensure Python 3.9 is the default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1 && \
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
 # Verify Python version
-RUN python3.9 --version
+RUN python3 --version
+RUN pip --version
 
 # Install app dependencies
 COPY package*.json ./
