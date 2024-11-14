@@ -4,14 +4,32 @@ FROM node:16
 # Set the working directory in the container
 WORKDIR /app
 
-# Install Python 3.9 and required dependencies directly from Debian repositories
+# Install required dependencies and build tools for Python 3.9
 RUN apt-get update && \
     apt-get install -y \
+    build-essential \
+    zlib1g-dev \
+    libncurses5-dev \
+    libgdbm-dev \
+    libnss3-dev \
+    libssl-dev \
+    libreadline-dev \
+    libffi-dev \
+    curl \
+    libbz2-dev \
     python3.9 \
     python3.9-venv \
     python3.9-dev \
     python3-pip && \
     apt-get clean
+
+# Ensure Python 3.9 is the default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1 && \
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+
+# Verify Python version
+RUN python3 --version
+RUN pip --version
 
 # Install app dependencies
 COPY package*.json ./
