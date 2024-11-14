@@ -4,11 +4,8 @@ FROM node:16
 # Set the working directory in the container
 WORKDIR /app
 
-# Install Python 3.9 and required dependencies from deadsnakes PPA
+# Install Python 3.9 and required dependencies directly from Debian repositories
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
     apt-get install -y \
     python3.9 \
     python3.9-venv \
