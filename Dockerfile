@@ -4,9 +4,17 @@ FROM node:16
 # Set the working directory in the container
 WORKDIR /app
 
-# Install required dependencies and build tools for Python 3.9
+# Install required dependencies and Python 3.9 from deadsnakes PPA
 RUN apt-get update && \
     apt-get install -y \
+    software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y \
+    python3.9 \
+    python3.9-venv \
+    python3.9-dev \
+    python3-pip \
     build-essential \
     zlib1g-dev \
     libncurses5-dev \
@@ -16,11 +24,7 @@ RUN apt-get update && \
     libreadline-dev \
     libffi-dev \
     curl \
-    libbz2-dev \
-    python3.9 \
-    python3.9-venv \
-    python3.9-dev \
-    python3-pip && \
+    libbz2-dev && \
     apt-get clean
 
 # Ensure Python 3.9 is the default
