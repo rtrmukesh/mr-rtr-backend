@@ -6,8 +6,6 @@ FROM node:16
 # Verify Python version (ensure it's >= 3.9)
 RUN python --version
 
-# Install yt-dlp via npm (if you need this)
-RUN npm install yt-dlp
 
 # Set the working directory for the application
 WORKDIR /app
