@@ -1,5 +1,4 @@
-const { exec } = require('child_process');
-const path = require('path');
+const ytdl = require('ytdl-core');
 
 class MediaService {
     static async getQualitiy(req, res, next) {
@@ -8,41 +7,29 @@ class MediaService {
             return res.status(400).json({ error: 'URL parameter is required' });
         }
 
-        // Build yt-dlp command
-        const command = `yt-dlp -J --no-warnings --no-call-home --format bestaudio/best ${videoUrl}`;
+        try {
+            // Get video info using ytdl-core
+            const info = await ytdl.getInfo(videoUrl);
 
-        // Execute the yt-dlp command
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                console.error('Error executing yt-dlp:', error);
-                return res.status(500).json({ error: 'Error fetching video qualities', details: error.message });
+            // Check if formats are available
+            if (!info || !info.formats || info.formats.length === 0) {
+                return res.status(500).json({ error: 'No formats found for the video' });
             }
 
-            if (stderr) {
-                console.error('yt-dlp stderr:', stderr);
-            }
+            // Extract video qualities from formats
+            const qualities = info.formats.map(file => ({
+                id: file.itag,
+                label: file.format_note,
+                resolution: file.hasVideo ? `${file.height}p` : 'Audio',
+                url: file.url,
+                format: file.mimeType
+            }));
 
-            try {
-                const output = JSON.parse(stdout);
-                if (!output || !output.formats || output.formats.length === 0) {
-                    return res.status(500).json({ error: 'No formats found for the video' });
-                }
-
-                // Extract video qualities
-                const qualities = output.formats.map(file => ({
-                    id: file.format_id,
-                    label: file.format_note,
-                    resolution: file.height ? `${file.height}p` : 'Audio',
-                    url: file.url
-                }));
-
-                return res.status(200).json({ qualities });
-
-            } catch (parseError) {
-                console.error('Error parsing yt-dlp output:', parseError);
-                return res.status(500).json({ error: 'Error parsing yt-dlp output' });
-            }
-        });
+            return res.status(200).json({ qualities });
+        } catch (error) {
+            console.error('Error fetching video info:', error);
+            return res.status(500).json({ error: 'Error fetching video qualities', details: error.message });
+        }
     }
 }
 
