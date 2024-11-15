@@ -1,15 +1,21 @@
 const ytdl = require('ytdl-core');
+const { URL } = require('url'); // Import URL module to manipulate the URL
 
 class MediaService {
     static async getQualitiy(req, res, next) {
-        const videoUrl = req.query.url;
+        let videoUrl = req.query.url;
         if (!videoUrl) {
             return res.status(400).json({ error: 'URL parameter is required' });
         }
 
         try {
-            // Get video info using ytdl-core
-            const info = await ytdl.getInfo(videoUrl,{
+            // Modify the URL to include the 'c' and 'cver' parameters
+            const url = new URL(videoUrl);  // Create a URL object to manipulate the URL
+            url.searchParams.set('c', 'TVHTML5');  // Set the 'c' parameter
+            url.searchParams.set('cver', '7.20190319');  // Set the 'cver' parameter
+
+            // Get video info using ytdl-core with the modified URL
+            const info = await ytdl.getInfo(url.toString(), {
                 requestOptions: {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
