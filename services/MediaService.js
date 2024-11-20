@@ -1,48 +1,64 @@
-const ytdl = require('ytdl-core');
-const { URL } = require('url'); // Import URL module to manipulate the URL
+const youtubedl = require('youtube-dl-exec');
+const path = require('path');
 
-class MediaService {
+class VideoService {
+
+    static getVideoQualities(videoUrl) {
+        return new Promise((resolve, reject) => {
+            youtubedl(videoUrl, {
+                dumpSingleJson: true,
+                noWarnings: true,
+            })
+                .then((info) => {
+                    const formats = info.formats
+                        .filter((file) => file.url) // Ensure only formats with URLs are included
+                        .map((file) => ({
+                            id: file.format_id,
+                            label: file.format_note || 'Unknown',
+                            resolution: file.vcodec && file.height ? `${file.height}p` : 'Audio',
+                            url: file.url,
+                            format: file.mimeType || 'Unknown',
+                        }));
+                    resolve(formats);
+                })
+                .catch((err) => {
+                    console.error('Error fetching qualities:', err);
+                    reject(err);
+                });
+        });
+    }
+
+
+    // static downloadVideo(videoUrl, formatId, outputDir) {
+    //     return new Promise((resolve, reject) => {
+    //         const outputFilePath = path.join(outputDir, '%(title)s.%(ext)s');
+
+    //         youtubedl(videoUrl, {
+    //             format: formatId,
+    //             output: outputFilePath,
+    //         })
+    //             .then((output) => {
+    //                 console.log('Video downloaded successfully:', output);
+    //                 resolve(output);
+    //             })
+    //             .catch((err) => {
+    //                 console.error('Error downloading video:', err);
+    //                 reject(err);
+    //             });
+    //     });
+    // }
+
     static async getQualitiy(req, res, next) {
         let videoUrl = req.query.url;
-        if (!videoUrl) {
-            return res.status(400).json({ error: 'URL parameter is required' });
-        }
-
-        try {
-            // Modify the URL to include the 'c' and 'cver' parameters
-            const url = new URL(videoUrl);  // Create a URL object to manipulate the URL
-            url.searchParams.set('c', 'TVHTML5');  // Set the 'c' parameter
-            url.searchParams.set('cver', '7.20190319');  // Set the 'cver' parameter
-
-            // Get video info using ytdl-core with the modified URL
-            const info = await ytdl.getInfo(url.toString(), {
-                requestOptions: {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-                    }
-                }
-            });
-
-            // Check if formats are available
-            if (!info || !info.formats || info.formats.length === 0) {
-                return res.status(500).json({ error: 'No formats found for the video' });
-            }
-
-            // Extract video qualities from formats
-            const qualities = info.formats.map(file => ({
-                id: file.itag,
-                label: file.format_note,
-                resolution: file.hasVideo ? `${file.height}p` : 'Audio',
-                url: file.url,
-                format: file.mimeType
-            }));
-
-            return res.status(200).json({ qualities });
-        } catch (error) {
-            console.error('Error fetching video info:', error);
-            return res.status(500).json({ error: 'Error fetching video qualities', details: error.message });
-        }
+        VideoService.getVideoQualities(videoUrl)
+            .then((qualities) => {
+                return res.status(200).json({ qualities });
+            })
+            .catch((err) => console.error('Error:', err));
     }
 }
 
-module.exports = MediaService;
+module.exports = VideoService
+
+
+
