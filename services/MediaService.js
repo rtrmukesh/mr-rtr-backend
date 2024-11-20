@@ -1,3 +1,4 @@
+const path = require('path');
 const youtubedl = require('youtube-dl-exec');
 
 class VideoService {
@@ -5,10 +6,14 @@ class VideoService {
     static getVideoQualities(videoUrl) {
         return new Promise((resolve, reject) => {
             youtubedl(videoUrl, {
+                cookies: path.resolve('./chromewebstore.google.com_cookies.txt'), // Path to your cookies file
                 dumpSingleJson: true,
                 noWarnings: true,
+                format: 'all', // Fetch all available formats
             })
                 .then((info) => {
+                    console.log('Cookie path:', path.resolve('./chromewebstore.google.com_cookies.txt'));
+
                     const formats = info.formats
                         .filter((file) => file.url) // Ensure only formats with URLs are included
                         .map((file) => ({
