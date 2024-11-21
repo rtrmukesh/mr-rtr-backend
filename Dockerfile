@@ -1,14 +1,15 @@
 # Use Node.js 18 as the base image
 FROM node:18
 
-# Install Python 3.12 and other required tools
+# Install required tools and add the deadsnakes PPA for Python 3.12
 RUN apt-get update && apt-get install -y \
+    software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y \
     python3.12 \
     python3.12-venv \
     python3.12-dev \
-    build-essential \
-    curl && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    build-essential 
 
 # Verify Python installation
 RUN python3.12 --version
