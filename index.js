@@ -8,7 +8,7 @@ const mediaRoute = require("./routes/media");
 
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
