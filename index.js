@@ -3,7 +3,9 @@ const multer = require("multer");
 const cors = require("cors");
 // const userRoute = require("./routes/user");
 // const db = require("./db/index");
-const mediaRoute = require("./routes/media");
+// const mediaRoute = require("./routes/media");
+const pushNotification = require("./routes/pushNotification");
+const faceRekognition = require("./routes/faceRekognition");
 
 
 
@@ -19,10 +21,10 @@ app.use(express.json({ limit: "50mb" }));
 
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-app.use(upload.none());
+app.use(upload.single('file'));
 
 
-
+{/* ✴---with have Database access---✴ */}
 // db.authenticate()
 //   .then(() => {
 //     app.use("/v1/user", userRoute);
@@ -37,8 +39,9 @@ app.use(upload.none());
 //     console.error("Unable to connect to the database:", err);
 //   });
 
-// app.use("/v1/user", userRoute);
-app.use("/v1/media", mediaRoute);
+{/* ✴---Without database access---✴ */}
+app.use("/v1/pushNotification", pushNotification);
+app.use("/v1/faceRekognition", faceRekognition);
 
 app.listen(port, () => {
   console.log(`API Service listening on port ${port}`);
