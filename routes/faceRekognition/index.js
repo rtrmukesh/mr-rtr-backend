@@ -1,5 +1,6 @@
 const express = require("express");
 const faceCompare = require("./faceCompare");
+const { searchFaceByUsingIndex } = require("../../services/FaceRekognitionService");
 let faceRekognition = express.Router();
 
 
